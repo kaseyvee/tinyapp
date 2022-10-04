@@ -11,7 +11,6 @@ const generateRandomString = function() {
   return newString;
 };
 
-
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 
@@ -37,8 +36,16 @@ app.get("/urls/:id", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  console.log(req.body); // Log the POST request body to the console DEBUGGING
+  let id = generateRandomString();
+  urlDatabase[id] = `http://www.${req.body.longURL}`;
+  console.log(urlDatabase); // DEBUGGING
+  res.redirect(`/urls/${id}`);
+});
+
+app.get("/u/:id", (req, res) => {
+  const longURL = urlDatabase[req.params.id];
+  res.redirect(longURL);
 });
 
 app.get("/urls", (req, res) => {
