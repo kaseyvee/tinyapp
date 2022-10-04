@@ -35,6 +35,11 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+app.post("/urls/:id/delete", (req, res) => {
+  delete urlDatabase[req.params.id];
+  res.redirect(`/urls`);
+});
+
 app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console DEBUGGING
   let id = generateRandomString();
