@@ -30,16 +30,14 @@
       <% } %>
     </div>
     <% if (!user) { %>
-      <form class="form-inline justify-content-center" action="/login" method="POST" >
-        <div class="form-group mb-2">
-          <input
-            class="form-control"
-            type="text"
-            name="username"
-            placeholder="Username"
-            style="width: 200px; margin: 0.5em"
-          />
+      <form class="form-inline justify-content-center" action="/login" method="GET" >
+        <div class="form-group mb-2" style="margin: 0.5em">
           <button type="submit" class="btn btn-outline-dark">Login</button>
+        </div>
+      </form>
+      <form class="form-inline justify-content-center" action="/register" method="GET" >
+        <div class="form-group mb-2" style="margin: 0.5em">
+          <button type="submit" class="btn btn-outline-dark">Register</button>
         </div>
       </form>
     <% } %>

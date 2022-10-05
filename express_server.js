@@ -55,6 +55,11 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
+app.get("/login", (req, res) => {
+  const templateVars = { user: users[req.cookies["user_id"]] };
+  res.render("urls_login", templateVars);
+});
+
 app.get("/urls/new", (req, res) => {
   const templateVars = { user: users[req.cookies["user_id"]] };
   res.render("urls_new", templateVars);
@@ -95,10 +100,10 @@ app.get("/urls.json", (req, res) => {
 // ********* POST ********* //
 app.post("/register", (req, res) => {
   if (findUserByEmail(req.body.email)) {
-    return res.status(400).send("Error 400. This email already exists.");
+    return res.status(400).send("This email already exists.");
   }
   if (!req.body.email || !req.body.password) {
-    return res.status(400).send("Error 400. No fields can be empty!");
+    return res.status(400).send("No fields can be empty!");
   } else {
     let newId = generateRandomString();
     users[newId] = {
@@ -113,8 +118,11 @@ app.post("/register", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username);
-  console.log("username: ", req.body.username); // DEBUGGING
+  let user = users[findUserByEmail(req.body.email)];
+  if (!user || user["password"] !== req.body.password) {
+    return res.status(400).send("Yikes! Invalid credentials.");
+  }
+  res.cookie("user_id", user["id"]);
   res.redirect(`/urls`);
 });
 
