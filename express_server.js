@@ -52,10 +52,13 @@ const users = {
 
 // ********* GET ********* //
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  res.redirect("/urls");
 });
 
 app.get("/login", (req, res) => {
+  if (req.cookies["user_id"]) {
+    return res.redirect("/urls");
+  }
   const templateVars = { user: users[req.cookies["user_id"]] };
   res.render("urls_login", templateVars);
 });
@@ -88,6 +91,9 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
+  if (req.cookies["user_id"]) {
+    return res.redirect("/urls");
+  }
   const templateVars = { user: users[req.cookies["user_id"]] };
   res.render("urls_register", templateVars);
 });
@@ -113,7 +119,7 @@ app.post("/register", (req, res) => {
     };
     console.log(users); // DEBUGGING
     res.cookie("user_id", newId);
-    res.redirect(`/urls`);
+    res.redirect("/urls");
   }
 });
 
@@ -123,23 +129,23 @@ app.post("/login", (req, res) => {
     return res.status(400).send("Yikes! Invalid credentials.");
   }
   res.cookie("user_id", user["id"]);
-  res.redirect(`/urls`);
+  res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id", req.body.newId);
-  res.redirect(`/urls`);
+  res.redirect("/urls");
 });
 
 app.post("/urls/:id", (req, res) => {
   urlDatabase[req.params.id] = `http://www.${req.body.longURL}`;
   console.log(urlDatabase); // DEBUGGING
-  res.redirect(`/urls`);
+  res.redirect("/urls");
 });
 
 app.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[req.params.id];
-  res.redirect(`/urls`);
+  res.redirect("/urls");
 });
 
 app.post("/urls", (req, res) => {
