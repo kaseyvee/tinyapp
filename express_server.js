@@ -13,15 +13,36 @@ const generateRandomString = function() {
   return newString;
 };
 
+
+// ********* MIDDLEWARE ********* //
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+
+// ********* DATABASES ********* //
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+};
+
+
+// ********* ROUTES ********* //
+
+// ********* GET ********* //
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -62,6 +83,20 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+
+// ********* POST ********* //
+app.post("/register", (req, res) => {
+  let newId = generateRandomString();
+  users[newId] = {
+    id: newId,
+    email: req.body.email,
+    password: req.body.password
+  };
+  console.log(users);
+  res.cookie("user_id", newId);
+  res.redirect(`/urls`);
+});
+
 app.post("/login", (req, res) => {
   res.cookie("username", req.body.username);
   console.log("username: ", req.body.username); // DEBUGGING
@@ -93,6 +128,8 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${id}`);
 });
 
+
+// ********* LISTEN ********* //
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
