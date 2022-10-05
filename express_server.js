@@ -63,6 +63,12 @@ app.post("/login", (req, res) => {
   res.redirect(`/urls`);
 });
 
+app.post("/logout", (req, res) => {
+  res.clearCookie("username", req.body.username);
+  console.log("username cookie deleted and should return undefined: ", req.body.username); // DEBUGGING
+  res.redirect(`/urls`);
+});
+
 app.post("/urls/:id", (req, res) => {
   urlDatabase[req.params.id] = `http://www.${req.body.longURL}`;
   console.log(urlDatabase); // DEBUGGING
