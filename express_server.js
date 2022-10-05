@@ -30,8 +30,14 @@ app.use(cookieParser());
 
 // ********* DATABASES ********* //
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
 
 const users = {
@@ -64,6 +70,9 @@ app.get("/login", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
+  if (!req.cookies["user_id"]) {
+    return res.redirect("/login");
+  }
   const templateVars = { user: users[req.cookies["user_id"]] };
   res.render("urls_new", templateVars);
 });
@@ -71,14 +80,17 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const templateVars = {
     id: req.params.id,
-    longURL: urlDatabase[req.params.id],
+    longURL: urlDatabase[req.params.id]["longURL"],
     user: users[req.cookies["user_id"]]
   };
   res.render("urls_show", templateVars);
 });
 
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id];
+  const longURL = urlDatabase[req.params.id]["longURL"];
+  if (!longURL) {
+    return res.status(404).send("Uh-oh! This ID does not exist.");
+  }
   res.redirect(longURL);
 });
 
@@ -138,7 +150,13 @@ app.post("/logout", (req, res) => {
 });
 
 app.post("/urls/:id", (req, res) => {
-  urlDatabase[req.params.id] = `http://www.${req.body.longURL}`;
+  if (!req.cookies["user_id"]) {
+    return res.status(401).send("Please login first.");
+  }
+  urlDatabase[req.params.id] = {
+    longURL: `http://www.${req.body.longURL}`,
+    userID: req.cookies["user_id"]
+  };
   console.log(urlDatabase); // DEBUGGING
   res.redirect("/urls");
 });
@@ -149,9 +167,15 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
+  if (!req.cookies["user_id"]) {
+    return res.status(401).send("Please login first.");
+  }
   console.log(req.body); // Log the POST request body to the console DEBUGGING
   let id = generateRandomString();
-  urlDatabase[id] = `http://www.${req.body.longURL}`;
+  urlDatabase[id] = {
+    longURL: `http://www.${req.body.longURL}`,
+    userID: req.cookies["user_id"]
+  };
   console.log(urlDatabase); // DEBUGGING
   res.redirect(`/urls/${id}`);
 });
