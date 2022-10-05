@@ -111,7 +111,7 @@ app.post("/register", (req, res) => {
       email: req.body.email,
       password: req.body.password
     };
-    console.log(users); // DE
+    console.log(users); // DEBUGGING
     res.cookie("user_id", newId);
     res.redirect(`/urls`);
   }
@@ -128,7 +128,6 @@ app.post("/login", (req, res) => {
 
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id", req.body.newId);
-  console.log("username cookie deleted and should return undefined: ", req.body.username); // DEBUGGING
   res.redirect(`/urls`);
 });
 
