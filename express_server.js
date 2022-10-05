@@ -13,6 +13,14 @@ const generateRandomString = function() {
   return newString;
 };
 
+const findUserByEmail = function(email) {
+  for (let user in users) {
+    if (users[user]["email"] === email) {
+      return user;
+    }
+  }
+  return null;
+};
 
 // ********* MIDDLEWARE ********* //
 app.set("view engine", "ejs");
@@ -48,7 +56,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  const templateVars = { username: req.cookies["username"] };
+  const templateVars = { user: users[req.cookies["user_id"]] };
   res.render("urls_new", templateVars);
 });
 
@@ -56,7 +64,7 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = {
     id: req.params.id,
     longURL: urlDatabase[req.params.id],
-    username: req.cookies["username"]
+    user: users[req.cookies["user_id"]]
   };
   res.render("urls_show", templateVars);
 });
@@ -69,13 +77,13 @@ app.get("/u/:id", (req, res) => {
 app.get("/urls", (req, res) => {
   const templateVars = {
     urls: urlDatabase,
-    username: req.cookies["username"]
+    user: users[req.cookies["user_id"]]
   };
   res.render("urls_index", templateVars);
 });
 
 app.get("/register", (req, res) => {
-  const templateVars = { username: req.cookies["username"] };
+  const templateVars = { user: users[req.cookies["user_id"]] };
   res.render("urls_register", templateVars);
 });
 
@@ -86,15 +94,22 @@ app.get("/urls.json", (req, res) => {
 
 // ********* POST ********* //
 app.post("/register", (req, res) => {
-  let newId = generateRandomString();
-  users[newId] = {
-    id: newId,
-    email: req.body.email,
-    password: req.body.password
-  };
-  console.log(users);
-  res.cookie("user_id", newId);
-  res.redirect(`/urls`);
+  if (findUserByEmail(req.body.email)) {
+    return res.status(400).send("Error 400. This email already exists.");
+  }
+  if (!req.body.email || !req.body.password) {
+    return res.status(400).send("Error 400. No fields can be empty!");
+  } else {
+    let newId = generateRandomString();
+    users[newId] = {
+      id: newId,
+      email: req.body.email,
+      password: req.body.password
+    };
+    console.log(users); // DE
+    res.cookie("user_id", newId);
+    res.redirect(`/urls`);
+  }
 });
 
 app.post("/login", (req, res) => {
@@ -104,7 +119,7 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("username", req.body.username);
+  res.clearCookie("user_id", req.body.newId);
   console.log("username cookie deleted and should return undefined: ", req.body.username); // DEBUGGING
   res.redirect(`/urls`);
 });

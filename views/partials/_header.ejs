@@ -20,16 +20,16 @@
       </div>
     </div>
     <div>
-      <% if (username) { %>
+      <% if (user) { %>
       <form class="form-inline justify-content-center" action="/logout" method="POST" >
-        <p style="margin: 0.5em">Logged in as: <%= username %>!</p>
+        <p style="margin: 0.5em">Logged in as: <%= user["email"] %>!</p>
         <div class="form-group mb-2">
           <button type="submit" class="btn btn-outline-dark" style="margin: 0.5em">Logout</button>
         </div>
       </form>
       <% } %>
     </div>
-    <% if (!username) { %>
+    <% if (!user) { %>
       <form class="form-inline justify-content-center" action="/login" method="POST" >
         <div class="form-group mb-2">
           <input
