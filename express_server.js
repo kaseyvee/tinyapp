@@ -4,6 +4,8 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 
+
+// ********* FUNKYTONS ********* //
 const generateRandomString = function() {
   const alpha = "abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   let newString = "";
@@ -20,6 +22,16 @@ const findUserByEmail = function(email) {
     }
   }
   return null;
+};
+
+const urlsForUser = function(id) {
+  let newDB = {};
+  for (let url in urlDatabase) {
+    if (urlDatabase[url]["userID"] === id) {
+      newDB[url] = urlDatabase[url];
+    }
+  }
+  return newDB;
 };
 
 // ********* MIDDLEWARE ********* //
@@ -78,6 +90,15 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
+  if (!urlDatabase[req.params.id]) {
+    return res.status(404).send("Uh-oh! This ID does not exist.");
+  }
+  if (!req.cookies["user_id"]) {
+    return res.status(401).send("Please login first to access your URL.");
+  }
+  if (req.cookies["user_id"] !== urlDatabase[req.params.id]["userID"]) {
+    return res.status(401).send("You don't own this URL!");
+  }
   const templateVars = {
     id: req.params.id,
     longURL: urlDatabase[req.params.id]["longURL"],
@@ -95,8 +116,11 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
+  if (!req.cookies["user_id"]) {
+    return res.redirect("/login");
+  }
   const templateVars = {
-    urls: urlDatabase,
+    urls: urlsForUser(req.cookies["user_id"]),
     user: users[req.cookies["user_id"]]
   };
   res.render("urls_index", templateVars);
@@ -146,22 +170,36 @@ app.post("/login", (req, res) => {
 
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id", req.body.newId);
-  res.redirect("/urls");
+  res.redirect("/login");
 });
 
 app.post("/urls/:id", (req, res) => {
+  if (!urlDatabase[req.params.id]) {
+    return res.status(404).send("Uh-oh! This ID does not exist.");
+  }
   if (!req.cookies["user_id"]) {
-    return res.status(401).send("Please login first.");
+    return res.status(401).send("Please login first to access your URL.");
+  }
+  if (req.cookies["user_id"] !== urlDatabase[req.params.id]["userID"]) {
+    return res.status(401).send("You don't own this URL!");
   }
   urlDatabase[req.params.id] = {
     longURL: `http://www.${req.body.longURL}`,
     userID: req.cookies["user_id"]
   };
-  console.log(urlDatabase); // DEBUGGING
   res.redirect("/urls");
 });
 
 app.post("/urls/:id/delete", (req, res) => {
+  if (!urlDatabase[req.params.id]) {
+    return res.status(404).send("Uh-oh! This ID does not exist.");
+  }
+  if (!req.cookies["user_id"]) {
+    return res.status(401).send("Please login first to access your URL.");
+  }
+  if (req.cookies["user_id"] !== urlDatabase[req.params.id]["userID"]) {
+    return res.status(401).send("You don't own this URL!");
+  }
   delete urlDatabase[req.params.id];
   res.redirect("/urls");
 });
@@ -170,7 +208,6 @@ app.post("/urls", (req, res) => {
   if (!req.cookies["user_id"]) {
     return res.status(401).send("Please login first.");
   }
-  console.log(req.body); // Log the POST request body to the console DEBUGGING
   let id = generateRandomString();
   urlDatabase[id] = {
     longURL: `http://www.${req.body.longURL}`,
