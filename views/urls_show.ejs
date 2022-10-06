@@ -8,7 +8,7 @@
       integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
       crossorigin="anonymous"
     />
-    <title>URL | TinyApp</title>
+    <title>URL | babyURL</title>
   </head>
 
   <body>
@@ -16,14 +16,13 @@
     <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
-        <h4 class="card-title">TinyURL for: <%= longURL %></h5>
+        <h4 class="card-title">babyURL for: <%= longURL %></h5>
         <p class="card-text">
           Short URL ID: <a href="/u/<%= id %>"><%= id %></a>
         </p>
       </div>
     </div>
-    <div class="card text-center">
-      <div class="card-body">
+      <div class="p-3 mb-2 bg-light text-dark text-center">
         <h4 >Edit</h4>
         <form class="form-inline justify-content-center" action="/urls/<%= id %>" method="POST" >
           <div class="form-group mb-2">
@@ -38,8 +37,8 @@
             <button type="submit" class="btn btn-primary">Submit</button>
           </div>
         </form>
+        <p><i>Hey. You. Don't forget to omit <b>https://www.</b> :)</i></p>
       </div>
-    </div>
     <!-- Bootstrap JS -->
     <script
       src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
