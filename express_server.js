@@ -1,6 +1,7 @@
 const cookieSession = require("cookie-session");
 const express = require("express");
 const bcrypt = require("bcryptjs");
+const { findUserByEmail } = require("./helpers");
  
 const app = express();
 const PORT = 8080; // default port 8080
@@ -14,15 +15,6 @@ const generateRandomString = function() {
     newString += alpha.charAt(Math.random() * alpha.length);
   }
   return newString;
-};
-
-const findUserByEmail = function(email, database) {
-  for (let user in database) {
-    if (database[user]["email"] === email) {
-      return user;
-    }
-  }
-  return null;
 };
 
 const urlsForUser = function(id) {
@@ -172,7 +164,6 @@ app.post("/register", (req, res) => {
 
   let newId = generateRandomString();
   const hashedPassword = bcrypt.hashSync(req.body.password, 10);
-
 
   users[newId] = {
     id: newId,
