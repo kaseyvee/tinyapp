@@ -1,5 +1,6 @@
-const cookieSession = require("cookie-session");
 const express = require("express");
+const methodOverride = require("method-override");
+const cookieSession = require("cookie-session");
 const bcrypt = require("bcryptjs");
  
 const app = express();
@@ -12,6 +13,7 @@ const { generateRandomString, urlsForUser, findUserByEmail } = require("./helper
 // ********* MIDDLEWARE ********* //
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride('_method'));
 app.use(cookieSession({
   name: 'giftshop',
   keys: ["blackbeard's bar and grill and other delicacies and delights and fishing equipment"],
@@ -165,7 +167,7 @@ app.post("/login", (req, res) => {
   if (!user || !bcrypt.compareSync(req.body.password, user["password"])) {
     return res.status(400).send("Yikes! Invalid credentials.");
   }
-  
+
   req.session.userId = user["id"];
   res.redirect("/urls");
 });
@@ -177,7 +179,7 @@ app.post("/logout", (req, res) => {
 });
 
 
-app.post("/urls/:id", (req, res) => {
+app.put("/urls/:id", (req, res) => {
   if (!urlDatabase[req.params.id]) {
     return res.status(404).send("Uh-oh! This ID does not exist.");
   }
@@ -197,7 +199,7 @@ app.post("/urls/:id", (req, res) => {
 });
 
 
-app.post("/urls/:id/delete", (req, res) => {
+app.delete("/urls/:id", (req, res) => {
   if (!urlDatabase[req.params.id]) {
     return res.status(404).send("Uh-oh! This ID does not exist.");
   }
@@ -214,7 +216,7 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 
-app.post("/urls", (req, res) => {
+app.put("/urls", (req, res) => {
   if (!req.session.userId) {
     return res.status(401).send("Please login first.");
   }
