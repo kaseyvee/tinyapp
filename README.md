@@ -4,8 +4,8 @@ babyURL is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-!["screenshot description"](#)
-!["screenshot description"](#)
+!["Default page when logged in. Shows list of created URLs."](https://github.com/kethnal/tinyapp/blob/main/docs/url_list.png?raw=true)
+!["Page for changing the long URL to an existing URL."](https://github.com/kethnal/tinyapp/blob/main/docs/url_page_example.png?raw=true)
 
 ## Dependencies
 
