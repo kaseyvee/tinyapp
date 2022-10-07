@@ -1,31 +1,13 @@
 const cookieSession = require("cookie-session");
 const express = require("express");
 const bcrypt = require("bcryptjs");
-const { findUserByEmail } = require("./helpers");
  
 const app = express();
 const PORT = 8080; // default port 8080
 
+// ********* HELPER FUNCTIONS ********* //
+const { generateRandomString, urlsForUser, findUserByEmail } = require("./helpers");
 
-// ********* FUNKYTONS & VARIABLES ********* //
-const generateRandomString = function() {
-  const alpha = "abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  let newString = "";
-  for (let i = 0; i < 6; i++) {
-    newString += alpha.charAt(Math.random() * alpha.length);
-  }
-  return newString;
-};
-
-const urlsForUser = function(id) {
-  let newDB = {};
-  for (let url in urlDatabase) {
-    if (urlDatabase[url]["userID"] === id) {
-      newDB[url] = urlDatabase[url];
-    }
-  }
-  return newDB;
-};
 
 // ********* MIDDLEWARE ********* //
 app.set("view engine", "ejs");
@@ -129,7 +111,7 @@ app.get("/urls", (req, res) => {
   }
 
   const templateVars = {
-    urls: urlsForUser(req.session.userId),
+    urls: urlsForUser(req.session.userId, urlDatabase),
     user: users[req.session.userId]
   };
 
@@ -183,6 +165,7 @@ app.post("/login", (req, res) => {
   if (!user || !bcrypt.compareSync(req.body.password, user["password"])) {
     return res.status(400).send("Yikes! Invalid credentials.");
   }
+  
   req.session.userId = user["id"];
   res.redirect("/urls");
 });
@@ -190,7 +173,7 @@ app.post("/login", (req, res) => {
 
 app.post("/logout", (req, res) => {
   req.session = null;
-  res.redirect("/login");
+  res.redirect("/urls");
 });
 
 
