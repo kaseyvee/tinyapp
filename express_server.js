@@ -188,6 +188,12 @@ app.put("/urls/:id", (req, res) => { // for editing longURLs
   if (req.session.userId !== urlDatabase[req.params.id]["userID"]) {
     return res.status(401).send("You don't own this URL!");
   }
+  if (!req.body.longURL) {
+    return res.status(400).send("Cannot be empty!");
+  }
+  if (!req.body.longURL.includes("https://" || "http://")) {
+    return res.status(400).send("Did you include protocols?");
+  }
 
   urlDatabase[req.params.id] = {
     longURL: `${req.body.longURL}`,
@@ -201,6 +207,12 @@ app.put("/urls/:id", (req, res) => { // for editing longURLs
 app.put("/urls", (req, res) => { // for submitting new URLS
   if (!req.session.userId) {
     return res.status(401).send("Please login first.");
+  }
+  if (!req.body.longURL) {
+    return res.status(400).send("Cannot be empty!");
+  }
+  if (!req.body.longURL.includes("https://" || "http://")) {
+    return res.status(400).send("Did you include protocols?");
   }
 
   let id = generateRandomString();
