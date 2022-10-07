@@ -6,8 +6,13 @@ const bcrypt = require("bcryptjs");
 const app = express();
 const PORT = 8080; // default port 8080
 
+
 // ********* HELPER FUNCTIONS ********* //
 const { generateRandomString, urlsForUser, findUserByEmail } = require("./helpers");
+
+
+// ********* DATABASES ********* //
+const { urlDatabase, users } = require("./databases");
 
 
 // ********* MIDDLEWARE ********* //
@@ -18,32 +23,6 @@ app.use(cookieSession({
   name: 'giftshop',
   keys: ["blackbeard's bar and grill and other delicacies and delights and fishing equipment"],
 }));
-
-
-// ********* DATABASES ********* //
-const urlDatabase = {
-  b6UTxQ: {
-    longURL: "https://www.tsn.ca",
-    userID: "aJ48lW",
-  },
-  i3BoGr: {
-    longURL: "https://www.google.ca",
-    userID: "aJ48lW",
-  },
-};
-
-const users = {
-  userRandomID: {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur",
-  },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk",
-  },
-};
 
 
 ////////////////////////////////
@@ -62,6 +41,7 @@ app.get("/register", (req, res) => {
   }
 
   const templateVars = { user: users[req.session.userId] };
+
   res.render("urls_register", templateVars);
 });
 
@@ -72,6 +52,7 @@ app.get("/login", (req, res) => {
   }
 
   const templateVars = { user: users[req.session.userId] };
+
   res.render("urls_login", templateVars);
 });
 
@@ -82,6 +63,7 @@ app.get("/urls/new", (req, res) => {
   }
 
   const templateVars = { user: users[req.session.userId] };
+
   res.render("urls_new", templateVars);
 });
 
@@ -179,6 +161,24 @@ app.post("/logout", (req, res) => {
 });
 
 
+// ********* DELETE ********* //
+app.delete("/urls/:id", (req, res) => {
+  if (!urlDatabase[req.params.id]) {
+    return res.status(404).send("Uh-oh! This ID does not exist.");
+  }
+  if (!req.session.userId) {
+    return res.status(401).send("Please login first to access your URL.");
+  }
+  if (req.session.userId !== urlDatabase[req.params.id]["userID"]) {
+    return res.status(401).send("You don't own this URL!");
+  }
+
+  delete urlDatabase[req.params.id];
+  res.redirect("/urls");
+});
+
+
+// ********* PUT ********* //
 app.put("/urls/:id", (req, res) => {
   if (!urlDatabase[req.params.id]) {
     return res.status(404).send("Uh-oh! This ID does not exist.");
@@ -194,23 +194,6 @@ app.put("/urls/:id", (req, res) => {
     longURL: `http://www.${req.body.longURL}`,
     userID: req.session.userId
   };
-
-  res.redirect("/urls");
-});
-
-
-app.delete("/urls/:id", (req, res) => {
-  if (!urlDatabase[req.params.id]) {
-    return res.status(404).send("Uh-oh! This ID does not exist.");
-  }
-  if (!req.session.userId) {
-    return res.status(401).send("Please login first to access your URL.");
-  }
-  if (req.session.userId !== urlDatabase[req.params.id]["userID"]) {
-    return res.status(401).send("You don't own this URL!");
-  }
-
-  delete urlDatabase[req.params.id];
 
   res.redirect("/urls");
 });
