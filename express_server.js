@@ -20,7 +20,7 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.use(cookieSession({
-  name: 'giftshop',
+  name: 'giftShopOutTheBack',
   keys: ["blackbeard's bar and grill and other delicacies and delights and fishing equipment"],
 }));
 
