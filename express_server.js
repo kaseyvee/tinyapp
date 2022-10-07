@@ -137,7 +137,6 @@ app.post("/register", (req, res) => {
     password: hashedPassword
   };
 
-  console.log(users); // DEBUGGING
   req.session.userId = newId;
   res.redirect("/urls");
 });
@@ -179,7 +178,7 @@ app.delete("/urls/:id", (req, res) => {
 
 
 // ********* PUT ********* //
-app.put("/urls/:id", (req, res) => {
+app.put("/urls/:id", (req, res) => { // for editing longURLs
   if (!urlDatabase[req.params.id]) {
     return res.status(404).send("Uh-oh! This ID does not exist.");
   }
@@ -191,7 +190,7 @@ app.put("/urls/:id", (req, res) => {
   }
 
   urlDatabase[req.params.id] = {
-    longURL: `http://www.${req.body.longURL}`,
+    longURL: `${req.body.longURL}`,
     userID: req.session.userId
   };
 
@@ -199,18 +198,17 @@ app.put("/urls/:id", (req, res) => {
 });
 
 
-app.put("/urls", (req, res) => {
+app.put("/urls", (req, res) => { // for submitting new URLS
   if (!req.session.userId) {
     return res.status(401).send("Please login first.");
   }
 
   let id = generateRandomString();
   urlDatabase[id] = {
-    longURL: `http://www.${req.body.longURL}`,
+    longURL: `${req.body.longURL}`,
     userID: req.session.userId
   };
 
-  console.log(urlDatabase); // DEBUGGING
   res.redirect(`/urls/${id}`);
 });
 
